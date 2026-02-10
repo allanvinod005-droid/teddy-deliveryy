@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Teddy Delivery Service</title>
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --bg-color: #050508; /* Deepest Midnight */
+            --card-bg: #0f0f16;
+            --text-main: #e0e0e0;
+            --text-muted: #8888aa;
+            --accent-gold: #cfb53b;
+            --accent-pink: #ff99ac;
+            --accent-red: #ff4d4d;
+            --accent-blue: #4d79ff;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --transition-speed: 0.6s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* --- LAYOUT CONTAINER --- */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent-gold);
+        }
+
+        p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight {
+            color: var(--accent-pink);
+            font-weight: 600;
+        }
+
+        .mono {
+            font-family: "Courier New", Courier, monospace;
+            letter-spacing: 1px;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        /* --- BUTTONS --- */
+        button {
+            background: linear-gradient(135deg, var(--accent-gold), #b89f2b);
+            color: #000;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(207, 181, 59, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        button.secondary {
+            background: transparent;
+            border: 2px solid var(--accent-gold);
+            color: var(--accent-gold);
+            box-shadow: none;
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, var(--accent-red), #cc0000);
+            box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+            color: white;
+        }
+
+        /* --- ANIMATIONS & UTILITIES --- */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn var(--transition-speed) forwards;
+            opacity: 0;
+        }
+
+        .fade-out {
+            animation: fadeOut var(--transition-speed) forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(20px); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- SCENE SPECIFIC STYLES --- */
+
+        /* Scene 2: Tracking List */
+        .tracking-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.5s ease;
+        }
+        .tracking-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .content-box h3 {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .content-box span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Scene 3: Checklist */
+        .checklist-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .blink {
+            animation: blinking 1.5s infinite;
+        }
+        @keyframes blinking {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* Scene 5: Glitch */
+        .glitch-text {
+            position: relative;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-red);
+            text-transform: uppercase;
+        }
+
+        /* Particles */
+        .particle {
+            position: absolute;
+            bottom: -20px;
+            font-size: 1.5rem;
+            animation: floatUp 4s linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Footer */
+        .footer-note {
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            text-align: center;
+            opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND EFFECTS -->
+    <div style="position: fixed; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at 50% 10%, rgba(20,20,40,1) 0%, rgba(5,5,8,1) 100%); z-index: -1;"></div>
+
+    <div class="app-container" id="app">
+        <!-- Content injected via JS -->
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        const trackingID = "TEDDY-SHRU-0214";
+        const girlfriendName = "Shruthi";
+        const app = document.getElementById('app');
+
+        // --- SCENE MANAGER ---
+        const renderScene = (sceneName) => {
+            // Fade out current content
+            app.classList.add('fade-out');
+            
+            setTimeout(() => {
+                app.innerHTML = ''; // Clear content
+                app.classList.remove('fade-out');
+                app.classList.add('fade-in');
+                
+                // Render new content
+                switch(sceneName) {
+                    case 'landing': sceneLanding(); break;
+                    case 'tracking': sceneTracking(); break;
+                    case 'issue': sceneIssue(); break;
+                    case 'analysis': sceneAnalysis(); break;
+                    case 'reveal': sceneReveal(); break;
+                    case 'pov': scenePOV(); break;
+                    case 'ending': sceneEnding(); break;
+                }
+            }, 600); // Wait for fade out
+        };
+
+        // --- SCENES ---
+
+        // ACT 1: LANDING
+        function sceneLanding() {
+            app.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+                    <h1>Teddy Delivery Service</h1>
+                    <p>Global Priority Shipping</p>
+                    
+                    <div style="background: #15151e; padding: 1.5rem; border-radius: 12px; border: 1px solid #333; margin: 2rem 0; text-align: left;">
+                        <span style="font-size: 0.7rem; text-transform: uppercase; color: #666; display: block; margin-bottom: 5px;">Tracking ID</span>
+                        <div class="mono" style="font-size: 1.2rem; color: #fff;">${trackingID}</div>
+                        <div style="margin-top: 15px; font-size: 0.9rem; color: var(--accent-gold);">
+                            Estimated Delivery: <br><b>Today, Feb 10</b> 🧸
+                        </div>
+                    </div>
+
+                    <button onclick="renderScene('tracking')">Track Package</button>
+                </div>
+            `;
+        }
+
+        // ACT 2: LIVE TRACKING
+        function sceneTracking() {
+            app.innerHTML = `
+                <div style="text-align: left;">
+                    <button class="secondary" style="width: auto; padding: 5px 15px; font-size: 0.8rem; margin-bottom: 1rem;">${trackingID}</button>
+                    <h2 style="color: #fff;">Live Status</h2>
+                    <div id="tracker-list"></div>
+                    <button id="refresh-btn" class="hidden" onclick="renderScene('issue')">Refresh Status</button>
+                </div>
+            `;
+
+            const updates = [
+                { icon: "✔️", title: "Teddy packed with care", sub: "Includes hugs, comfort & stupidity" },
+                { icon: "🚚", title: "Journey Started", sub: "Driver is emotionally attached" },
+                { icon: "📍", title: "Current Location", sub: "Somewhere between missing you and thinking about you" }
+            ];
+
+            const list = document.getElementById('tracker-list');
+            const btn = document.getElementById('refresh-btn');
+
+            updates.forEach((item, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = 'tracking-item';
+                    div.innerHTML = `
+                        <div class="icon-box">${item.icon}</div>
+                        <div class="content-box">
+                            <h3>${item.title}</h3>
+                            <span>${item.sub}</span>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                    // Trigger reflow
+                    void div.offsetWidth;
+                    div.classList.add('visible');
+                }, index * 1200);
+            });
+
+            setTimeout(() => {
+                btn.classList.remove('hidden');
+                btn.classList.add('fade-in');
+            }, 4000);
+        }
+
+        // ACT 3: DELIVERY ISSUE
+        function sceneIssue() {
+            app.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                    <h1 style="color: var(--accent-red);">Delay Detected</h1>
+                    <p>System has encountered an unexpected logic error.</p>
+
+                    <div style="background: #15151e; border-radius: 12px; padding: 1rem; margin: 1.5rem 0; text-align: left;">
+                        <div class="checklist-item">
+                            <span>Traffic Conditions</span> <span style="color: var(--accent-red)">❌ Critical</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span>Weather</span> <span style="color: var(--accent-red)">❌ Stormy</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span>Distance</span> <span style="color: var(--accent-red)">❌ Too far</span>
+                        </div>
+                        <div class="checklist-item" style="border: none;">
+                            <span>Missing you too much</span> <span style="color: #4CAF50">✅ CONFIRMED</span>
+                        </div>
+                    </div>
+
+                    <p class="blink" style="color: var(--accent-gold); font-size: 0.9rem;">System is investigating source...</p>
+                    
+                    <button onclick="renderScene('analysis')">Run Diagnostic</button>
+                </div>
+            `;
+        }
+
+        // ACT 4: SYSTEM ANALYSIS
+        function sceneAnalysis() {
+            app.innerHTML = `
+                <div style="text-align: center;">
+                    <h2 style="margin-bottom: 2rem;">🔍 Analyzing...</h2>
+                    
+                    <div id="scan-results" style="text-align: left; margin-bottom: 2rem; padding: 0 1rem;">
+                        <!-- Items injected here -->
+                    </div>
+
+                    <div id="fail-msg" class="hidden" style="border: 1px solid var(--accent-red); padding: 1rem; border-radius: 8px; background: rgba(255, 77, 77, 0.1);">
+                        <h3 style="color: var(--accent-red);">❌ DELIVERY CANNOT PROCEED</h3>
+                    </div>
+
+                    <button id="why-btn" class="danger hidden" onclick="renderScene('reveal')">WHY?</button>
+                </div>
+            `;
+
+            const checks = [
+                { label: "Teddy Weight", status: "OK", color: "#4CAF50" },
+                { label: "Packaging", status: "OK", color: "#4CAF50" },
+                { label: "Route Calculation", status: "OK", color: "#4CAF50" },
+                { label: "Emotional Attachment", status: "❌ FATAL ERROR", color: "var(--accent-red)" }
+            ];
+
+            const container = document.getElementById('scan-results');
+            
+            checks.forEach((check, index) => {
+                setTimeout(() => {
+                    container.innerHTML += `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-family: monospace; font-size: 1.1rem;">
+                            <span>${check.label}...</span>
+                            <span style="color: ${check.color}; font-weight: bold;">${check.status}</span>
+                        </div>
+                    `;
+                }, index * 800);
+            });
+
+            setTimeout(() => {
+                document.getElementById('fail-msg').classList.remove('hidden');
+                document.getElementById('fail-msg').classList.add('fade-in');
+            }, 3500);
+
+            setTimeout(() => {
+                document.getElementById('why-btn').classList.remove('hidden');
+                document.getElementById('why-btn').classList.add('fade-in');
+            }, 4500);
+        }
+
+        // ACT 5: BIG REVEAL
+        function sceneReveal() {
+            app.innerHTML = `
+                <div style="display: flex; flex-direction: column; height: 70vh; justify-content: center; text-align: left;">
+                    <div class="glitch-text" style="margin-bottom: 2rem;">📦 DELIVERY<br>FAILED</div>
+                    
+                    <div id="reveal-text-1" class="fade-in" style="font-size: 1.2rem; margin-bottom: 1rem;">
+                        Reason for failure:
+                    </div>
+
+                    <div id="reveal-text-2" class="hidden" style="font-size: 1.5rem; color: #fff; font-weight: 600; line-height: 1.4;">
+                        The teddy refused to leave.
+                    </div>
+
+                    <div id="reveal-text-3" class="hidden" style="margin-top: 2rem; font-size: 1.1rem; color: var(--accent-gold);">
+                        It says you already have the original source of comfort.
+                    </div>
+
+                    <button id="cont-btn" class="hidden" onclick="renderScene('pov')" style="margin-top: 3rem; background: #333; color: #fff; box-shadow: none;">Wait, what?</button>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const t2 = document.getElementById('reveal-text-2');
+                t2.classList.remove('hidden');
+                t2.classList.add('fade-in');
+            }, 1500);
+
+            setTimeout(() => {
+                const t3 = document.getElementById('reveal-text-3');
+                t3.classList.remove('hidden');
+                t3.classList.add('fade-in');
+            }, 3500);
+
+            setTimeout(() => {
+                const btn = document.getElementById('cont-btn');
+                btn.classList.remove('hidden');
+                btn.classList.add('fade-in');
+            }, 5000);
+        }
+
+        // ACT 6: TEDDY POV
+        function scenePOV() {
+            app.innerHTML = `
+                <div style="text-align: center; padding: 1rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">🧸</div>
+                    
+                    <p id="line-1" class="hidden" style="font-size: 1.2rem; color: #fff;">
+                        "I was supposed to sit quietly,<br>be hugged when you’re tired,<br>and listen to everything."
+                    </p>
+
+                    <p id="line-2" class="hidden" style="font-size: 1.2rem; color: var(--accent-pink); margin-top: 2rem; font-weight: bold;">
+                        "But I realized...<br>he already does all that."
+                    </p>
+
+                    <button id="final-btn" class="hidden" onclick="renderScene('ending')" style="margin-top: 3rem;">So...</button>
+                </div>
+            `;
+
+            setTimeout(() => {
+                document.getElementById('line-1').classList.remove('hidden');
+                document.getElementById('line-1').classList.add('fade-in');
+            }, 500);
+
+            setTimeout(() => {
+                document.getElementById('line-2').classList.remove('hidden');
+                document.getElementById('line-2').classList.add('fade-in');
+            }, 3500);
+
+            setTimeout(() => {
+                document.getElementById('final-btn').classList.remove('hidden');
+                document.getElementById('final-btn').classList.add('fade-in');
+            }, 6000);
+        }
+
+        // ACT 7: ENDING
+        function sceneEnding() {
+            startParticles();
+            app.innerHTML = `
+                <div style="text-align: center; height: 80vh; display: flex; flex-direction: column; justify-content: center;">
+                    <p class="fade-in" style="font-size: 1.3rem; margin-bottom: 2rem;">
+                        So this Teddy Day,<br>I couldn't send a teddy.
+                    </p>
+                    
+                    <p class="fade-in" style="font-size: 1.3rem; margin-bottom: 3rem; animation-delay: 2s;">
+                        But I sent something<br>that misses you more.
+                    </p>
+
+                    <h1 class="fade-in" style="font-size: 2.5rem; line-height: 1.2; color: var(--accent-pink); animation-delay: 4s; text-shadow: 0 0 20px rgba(255, 153, 172, 0.5);">
+                        Happy Teddy Day<br>${girlfriendName} 🧸❤️
+                    </h1>
+
+                    <div class="footer-note fade-in" style="animation-delay: 6s;">
+                        Delivery rescheduled: As soon as I see you.
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- UTILS ---
+        function startParticles() {
+            const colors = ['#ff99ac', '#ffd700', '#ffffff'];
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.innerHTML = '❤️';
+                p.classList.add('particle');
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                p.style.fontSize = (Math.random() * 1 + 0.5) + 'rem';
+                document.body.appendChild(p);
+
+                setTimeout(() => {
+                    p.remove();
+                }, 5000);
+            }, 300);
+        }
+
+        // --- INIT ---
+        // Start scene
+        sceneLanding();
+
+    </script>
+</body>
+</html>
